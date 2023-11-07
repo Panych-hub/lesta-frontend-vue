@@ -10,5 +10,3 @@ export class VehicleApi {
             }).then((res) => res.data.data.vehicles)
     }
 }
-
-//@ts-ignore
