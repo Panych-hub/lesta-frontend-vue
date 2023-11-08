@@ -265,11 +265,11 @@ onMounted(async () => {
       </div>
       <div class="d-flex justify-content-center m-2 w-100">
         <div class="d-grid" style="grid-template-columns: 1fr 1fr 1fr">
-          <div v-if="pageNumber > 2">
+          <div v-if="pageNumber > 2" class="d-flex justify-content-end">
             <button
               type="button"
               class="btn btn-outline-secondary"
-              @click="togglePageNumber(0)"
+              @click="togglePageNumber(1)"
             >
               1
             </button>
