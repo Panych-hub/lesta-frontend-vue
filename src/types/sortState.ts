@@ -1,1 +1,1 @@
-export type SortState = 'up' | 'down' | 'none'
+export type SortState = "up" | "down" | "none";

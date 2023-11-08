@@ -1,1 +1,1 @@
-export type SortType = 'title' | 'level' | 'nation' | 'type' | 'none'
+export type SortType = "title" | "level" | "nation" | "type" | "none";

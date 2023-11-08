@@ -25,4 +25,4 @@ export const QUERY_FOR_ALL_SHIPS = `query allShips {
         }
       }
     }
-  }` as const
+  }` as const;

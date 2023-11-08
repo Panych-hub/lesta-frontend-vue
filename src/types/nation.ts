@@ -1,8 +1,8 @@
-import {Icons} from "./icons";
+import { Icons } from "./icons";
 
 export interface Nation {
-    title: string,
-    name: string,
-    color: string,
-    icons: Icons
-     }
+  title: string;
+  name: string;
+  color: string;
+  icons: Icons;
+}

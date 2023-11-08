@@ -1,5 +1,4 @@
-import {VehicleApi} from "./vehicle";
-
+import { VehicleApi } from "./vehicle";
 export default {
-    vehicle: new VehicleApi()
-}
+  vehicle: new VehicleApi(),
+};

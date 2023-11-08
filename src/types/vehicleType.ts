@@ -1,7 +1,7 @@
-import {Icons} from "./icons";
+import { Icons } from "./icons";
 
 export interface VehicleType {
-    name: string
-    title: string
-    icons: Icons
+  name: string;
+  title: string;
+  icons: Icons;
 }
