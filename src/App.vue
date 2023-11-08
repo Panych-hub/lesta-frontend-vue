@@ -1,72 +1,83 @@
 <script setup lang="ts">
 import type { Vehicle } from "./types/vehicle";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { SortState } from "./types/sortState";
 import { SortType } from "./types/sortType";
 import { fetchVehiclesList } from "./sevices/fetchVehicles";
+import ChangerCountPerPage from "./components/changerCountPerPage.vue";
+import ChangerPageNumber from "./components/changerPageNumber.vue";
 
 const vehicles = ref<Vehicle[]>([]);
 
 const filterForVehicles = ref<string>("");
+
 function clearFilterForVehicles() {
   filterForVehicles.value = "";
 }
 
-const numberPerPage = ref<number>(10);
-function toggleNumberPerPage(toggleNumber: number) {
-  numberPerPage.value = toggleNumber;
+const countPerPage = ref<number>(10);
+function changeCountPerPage(toggleNumber: number) {
+  countPerPage.value = toggleNumber;
 }
+
 const pageNumber = ref<number>(1);
-function togglePageNumber(numberOfPage: number) {
+
+function changePageNumber(numberOfPage: number) {
   pageNumber.value = numberOfPage;
 }
+
 const lastPage = computed<number>(() => {
-  return Math.round(vehicles.value.length / numberPerPage.value) + 1;
+  return Math.floor(vehiclesFiltered.value.length / countPerPage.value) + 1;
 });
 
-const vehiclesToShow = computed<Vehicle[]>(() => {
-  const vehiclesFiltered = vehicles.value.filter((vehicle) =>
+const vehiclesFiltered = computed<Vehicle[]>(() => {
+  return vehicles.value.filter((vehicle) =>
     String(vehicle["title"])
       .toLowerCase()
       .includes(filterForVehicles.value.toLowerCase()),
   );
+});
 
+const vehiclesToShow = computed<Vehicle[]>(() => {
+  const vehiclesAfterFilter = JSON.parse(
+    JSON.stringify(vehiclesFiltered.value),
+  );
   if (sortingType.value === "up") {
     if (sortingBy.value === "title") {
-      vehiclesFiltered.sort((a, b) => a.title.localeCompare(b.title));
+      vehiclesAfterFilter.sort((a, b) => a.title.localeCompare(b.title));
     } else if (sortingBy.value === "level") {
-      vehiclesFiltered.sort((a, b) => a.level - b.level);
+      vehiclesAfterFilter.sort((a, b) => a.level - b.level);
     } else if (sortingBy.value === "nation") {
-      vehiclesFiltered.sort((a, b) =>
+      vehiclesAfterFilter.sort((a, b) =>
         a.nation.title.localeCompare(b.nation.title),
       );
     } else if (sortingBy.value === "type") {
-      vehiclesFiltered.sort((a, b) =>
-        a.type.title.localeCompare(b.nation.title),
+      vehiclesAfterFilter.sort((a, b) =>
+        a.type.title.localeCompare(b.type.title),
       );
     }
   } else {
     if (sortingBy.value === "title") {
-      vehiclesFiltered.sort((a, b) => b.title.localeCompare(a.title));
+      vehiclesAfterFilter.sort((a, b) => b.title.localeCompare(a.title));
     } else if (sortingBy.value === "level") {
-      vehiclesFiltered.sort((a, b) => b.level - a.level);
+      vehiclesAfterFilter.sort((a, b) => b.level - a.level);
     } else if (sortingBy.value === "nation") {
-      vehiclesFiltered.sort((a, b) =>
+      vehiclesAfterFilter.sort((a, b) =>
         b.nation.title.localeCompare(a.nation.title),
       );
     } else if (sortingBy.value === "type") {
-      vehiclesFiltered.sort((a, b) =>
-        b.type.title.localeCompare(a.nation.title),
+      vehiclesAfterFilter.sort((a, b) =>
+        b.type.title.localeCompare(a.type.title),
       );
     }
   }
-
-  const startNumber = <number>numberPerPage.value * (pageNumber.value - 1);
-  const endNumber = <number>numberPerPage.value * pageNumber.value;
-  return vehiclesFiltered.slice(startNumber, endNumber);
+  const startNumber = <number>countPerPage.value * (pageNumber.value - 1);
+  const endNumber = <number>countPerPage.value * pageNumber.value;
+  return vehiclesAfterFilter.slice(startNumber, endNumber);
 });
 
 const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
+
 function resetVehicleCollapsed(): void {
   isEachVehicleCollapsed.value = new Map(
     vehicles.value.map((el) => [el.id, true]),
@@ -99,6 +110,9 @@ onMounted(async () => {
   await fetchVehicles();
   resetVehicleCollapsed();
 });
+watch(lastPage, () => {
+  if (pageNumber.value > lastPage.value) pageNumber.value = 1;
+});
 </script>
 
 <template>
@@ -118,143 +132,148 @@ onMounted(async () => {
           @click="clearFilterForVehicles"
         ></button>
       </div>
-      <div class="w-100 h-100 p-3 overflow-hidden d-flex flex-column">
-        <div
-          class="w-100 d-grid fw-bold pe-3"
-          :style="{ 'grid-template-columns': '1fr 1fr 1fr 1fr 1fr' }"
-        >
-          <div class="d-flex w-100 pointer" @click="toggleSort('title')">
-            <span class="me-2">Название</span>
-            <div v-if="sortingBy === 'title'">
-              <font-awesome-icon
-                icon="fa-sort-up"
-                v-if="sortingType === 'up'"
-              />
-              <font-awesome-icon
-                icon="fa-sort-down"
-                v-if="sortingType === 'down'"
-              />
-            </div>
-            <div v-else>
-              <font-awesome-icon icon="fa-sort" />
-            </div>
-          </div>
-          <div class="d-flex w-100 pointer" @click="toggleSort('level')">
-            <span class="me-2">Уровень</span>
-            <div v-if="sortingBy === 'level'">
-              <font-awesome-icon
-                icon="fa-sort-up"
-                v-if="sortingType === 'up'"
-              />
-              <font-awesome-icon
-                icon="fa-sort-down"
-                v-if="sortingType === 'down'"
-              />
-            </div>
-            <div v-else>
-              <font-awesome-icon icon="fa-sort" />
-            </div>
-          </div>
-          <div class="d-flex w-100 pointer" @click="toggleSort('nation')">
-            <span class="me-2">Нация</span>
-            <div v-if="sortingBy === 'nation'">
-              <font-awesome-icon
-                icon="fa-sort-up"
-                v-if="sortingType === 'up'"
-              />
-              <font-awesome-icon
-                icon="fa-sort-down"
-                v-if="sortingType === 'down'"
-              />
-            </div>
-            <div v-else>
-              <font-awesome-icon icon="fa-sort" />
-            </div>
-          </div>
-          <div class="d-flex w-100 pointer" @click="toggleSort('type')">
-            <span class="me-2">Класс</span>
-            <div v-if="sortingBy === 'type'">
-              <font-awesome-icon
-                icon="fa-sort-up"
-                v-if="sortingType === 'up'"
-              />
-              <font-awesome-icon
-                icon="fa-sort-down"
-                v-if="sortingType === 'down'"
-              />
-            </div>
-            <div v-else>
-              <font-awesome-icon icon="fa-sort" />
-            </div>
-          </div>
-          <span style="max-width: 100%" />
-        </div>
-        <div class="h-100 overflow-y-scroll overflow-x-hidden">
+      <div class="w-100 d-flex justify-content-center overflow-hidden">
+        <div class="w-75 h-100 p-3 overflow-hidden d-flex flex-column">
           <div
-            v-for="(vehicle, vehicleIndex) of vehiclesToShow"
-            :key="vehicleIndex"
-            class="w-100 mt-2"
+            class="w-100 d-grid fw-bold pe-3"
+            :style="{ 'grid-template-columns': 'repeat(5, 1fr)' }"
           >
-            <div
-              class="pointer hr-line pt-3"
-              @click="toggleVehicleCollapsed(vehicle.id)"
-            >
-              <div
-                class="d-grid w-100"
-                :style="{
-                  'grid-template-columns': '1fr 1fr 1fr 1fr 1fr',
-                  'background-image': `linear-gradient(
-                    transparent 80%, ${vehicle.nation.color} 100%
-                  )`,
-                }"
-              >
-                <div>{{ vehicle.title }}</div>
-                <div>{{ vehicle.level }}</div>
-                <div>
-                  <img
-                    :src="vehicle.nation.icons.small"
-                    :alt="vehicle.title"
-                    width="50"
-                  />
-                  {{ vehicle.nation.title }}
-                </div>
-                <div>
-                  <img :src="vehicle.type.icons.default" :alt="vehicle.title" />
-                  {{ vehicle.type.title }}
-                </div>
-                <img
-                  :src="vehicle.icons.medium"
-                  :alt="vehicle.title"
-                  style="max-width: 100%"
+            <div class="d-flex w-100 pointer" @click="toggleSort('title')">
+              <span class="me-2">Название</span>
+              <div v-if="sortingBy === 'title'">
+                <font-awesome-icon
+                  icon="fa-sort-up"
+                  v-if="sortingType === 'up'"
+                />
+                <font-awesome-icon
+                  icon="fa-sort-down"
+                  v-if="sortingType === 'down'"
                 />
               </div>
-              <div v-if="isEachVehicleCollapsed">
+              <div v-else>
+                <font-awesome-icon icon="fa-sort" />
+              </div>
+            </div>
+            <div class="d-flex w-100 pointer" @click="toggleSort('level')">
+              <span class="me-2">Уровень</span>
+              <div v-if="sortingBy === 'level'">
+                <font-awesome-icon
+                  icon="fa-sort-up"
+                  v-if="sortingType === 'up'"
+                />
+                <font-awesome-icon
+                  icon="fa-sort-down"
+                  v-if="sortingType === 'down'"
+                />
+              </div>
+              <div v-else>
+                <font-awesome-icon icon="fa-sort" />
+              </div>
+            </div>
+            <div class="d-flex w-100 pointer" @click="toggleSort('nation')">
+              <span class="me-2">Нация</span>
+              <div v-if="sortingBy === 'nation'">
+                <font-awesome-icon
+                  icon="fa-sort-up"
+                  v-if="sortingType === 'up'"
+                />
+                <font-awesome-icon
+                  icon="fa-sort-down"
+                  v-if="sortingType === 'down'"
+                />
+              </div>
+              <div v-else>
+                <font-awesome-icon icon="fa-sort" />
+              </div>
+            </div>
+            <div class="d-flex w-100 pointer" @click="toggleSort('type')">
+              <span class="me-2">Класс</span>
+              <div v-if="sortingBy === 'type'">
+                <font-awesome-icon
+                  icon="fa-sort-up"
+                  v-if="sortingType === 'up'"
+                />
+                <font-awesome-icon
+                  icon="fa-sort-down"
+                  v-if="sortingType === 'down'"
+                />
+              </div>
+              <div v-else>
+                <font-awesome-icon icon="fa-sort" />
+              </div>
+            </div>
+            <span style="max-width: 100%" />
+          </div>
+          <div class="h-100 overflow-y-scroll overflow-x-hidden">
+            <div
+              v-for="(vehicle, vehicleIndex) of vehiclesToShow"
+              :key="vehicleIndex"
+              class="w-100 mt-2"
+            >
+              <div
+                class="pointer hr-line pt-3"
+                @click="toggleVehicleCollapsed(vehicle.id)"
+              >
                 <div
-                  v-if="!isEachVehicleCollapsed.get(vehicle.id)"
-                  :id="`collapsable-${vehicle.id}`"
+                  class="d-grid w-100"
+                  :style="{
+                    'grid-template-columns': '1fr 1fr 1fr 1fr 1fr',
+                    'background-image': `linear-gradient(
+                    transparent 80%, ${vehicle.nation.color} 100%
+                  )`,
+                  }"
                 >
+                  <div>{{ vehicle.title }}</div>
+                  <div>{{ vehicle.level }}</div>
+                  <div>
+                    <img
+                      :src="vehicle.nation.icons.small"
+                      :alt="vehicle.title"
+                      width="50"
+                    />
+                    {{ vehicle.nation.title }}
+                  </div>
+                  <div>
+                    <img
+                      :src="vehicle.type.icons.default"
+                      :alt="vehicle.title"
+                    />
+                    {{ vehicle.type.title }}
+                  </div>
+                  <img
+                    :src="vehicle.icons.medium"
+                    :alt="vehicle.title"
+                    style="max-width: 100%"
+                  />
+                </div>
+                <div v-if="isEachVehicleCollapsed">
                   <div
-                    class="mb-2 w-100 d-grid"
-                    style="grid-template-columns: 2fr 1fr"
-                    :style="{
-                      'background-image': `linear-gradient(
+                    v-if="!isEachVehicleCollapsed.get(vehicle.id)"
+                    :id="`collapsable-${vehicle.id}`"
+                  >
+                    <div
+                      class="mb-2 w-100 d-grid"
+                      style="grid-template-columns: 2fr 1fr"
+                      :style="{
+                        'background-image': `linear-gradient(
                     ${vehicle.nation.color} 0%, transparent 20%
                   )`,
-                    }"
-                  >
-                    <span class="pt-5 ps-3"> {{ vehicle.description }}</span>
-                    <div
-                      class="background pt-5"
-                      :style="{
-                        'background-size': 'cover',
-                        'background-image': `url(${vehicle.nation.icons.large})`,
                       }"
                     >
-                      <img
-                        :src="vehicle.icons.large"
-                        :alt="vehicle.title"
-                        width="700"
-                      />
+                      <span class="pt-5 p-3"> {{ vehicle.description }}</span>
+                      <div
+                        class="background m-3"
+                        :style="{
+                          'background-size': 'cover',
+                          'background-image': `url(${vehicle.nation.icons.large})`,
+                        }"
+                      >
+                        <img
+                          :src="vehicle.icons.large"
+                          :alt="vehicle.title"
+                          width="700"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -263,84 +282,16 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      <div class="d-flex justify-content-center m-2 w-100">
-        <div class="d-grid" style="grid-template-columns: 1fr 1fr 1fr">
-          <div v-if="pageNumber > 2" class="d-flex justify-content-end">
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              @click="togglePageNumber(1)"
-            >
-              1
-            </button>
-            <span> . . . </span>
-          </div>
-          <div v-else />
-          <div class="d-grid" style="grid-template-columns: 1fr 1fr 1fr">
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              @click="togglePageNumber(pageNumber - 1)"
-              v-if="pageNumber > 1"
-            >
-              {{ pageNumber - 1 }}
-            </button>
-            <div v-else />
-            <button type="button" class="btn btn-outline-secondary active">
-              {{ pageNumber }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              @click="togglePageNumber(pageNumber + 1)"
-              v-if="pageNumber < lastPage"
-            >
-              {{ pageNumber + 1 }}
-            </button>
-            <div v-else />
-          </div>
-          <div v-if="pageNumber < lastPage - 1">
-            <span> . . . </span>
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              @click="togglePageNumber(lastPage)"
-            >
-              {{ lastPage }}
-            </button>
-          </div>
-          <div v-else />
-        </div>
-      </div>
-      <div class="d-flex justify-content-center m-2">
-        <span class="align-content-center me-3">
-          Количество техники на странице
-        </span>
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          @click="toggleNumberPerPage(10)"
-          :class="numberPerPage === 10 ? 'active' : ''"
-        >
-          10
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          @click="toggleNumberPerPage(25)"
-          :class="numberPerPage === 25 ? 'active' : ''"
-        >
-          25
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          @click="toggleNumberPerPage(50)"
-          :class="numberPerPage === 50 ? 'active' : ''"
-        >
-          50
-        </button>
-      </div>
+
+      <changer-page-number
+        :page-number="pageNumber"
+        :last-page="lastPage"
+        @change-number="changePageNumber"
+      />
+      <changer-count-per-page
+        @change-count="changeCountPerPage"
+        :count-per-page="countPerPage"
+      />
     </div>
   </div>
 </template>
