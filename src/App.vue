@@ -5,12 +5,12 @@ import { SortState } from "./types/sortState";
 import { SortType } from "./types/sortType";
 import { fetchVehiclesList } from "./sevices/fetchVehicles";
 import ChangerCountPerPage from "./components/changerCountPerPage.vue";
-import ChangerPageNumber from "./components/changerPageNumber.vue";
+import ChangerCurrentPageNumber from "./components/changerCurrentPageNumber.vue";
+import { VehicleCollapsed } from "./sevices/vehicleCollapsed";
 
 const vehicles = ref<Vehicle[]>([]);
 
 const filterForVehicles = ref<string>("");
-
 function clearFilterForVehicles() {
   filterForVehicles.value = "";
 }
@@ -20,10 +20,9 @@ function changeCountPerPage(toggleNumber: number) {
   countPerPage.value = toggleNumber;
 }
 
-const pageNumber = ref<number>(1);
-
-function changePageNumber(numberOfPage: number) {
-  pageNumber.value = numberOfPage;
+const currentPageNumber = ref<number>(1);
+function changeCurrentPageNumber(numberOfPage: number) {
+  currentPageNumber.value = numberOfPage;
 }
 
 const lastPage = computed<number>(() => {
@@ -71,22 +70,18 @@ const vehiclesToShow = computed<Vehicle[]>(() => {
       );
     }
   }
-  const startNumber = <number>countPerPage.value * (pageNumber.value - 1);
-  const endNumber = <number>countPerPage.value * pageNumber.value;
+  const startNumber =
+    <number>countPerPage.value * (currentPageNumber.value - 1);
+  const endNumber = <number>countPerPage.value * currentPageNumber.value;
   return vehiclesAfterFilter.slice(startNumber, endNumber);
 });
 
 const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
-
-function resetVehicleCollapsed(): void {
-  isEachVehicleCollapsed.value = new Map(
-    vehicles.value.map((el) => [el.id, true]),
-  );
-}
-function toggleVehicleCollapsed(index: number): void {
-  const isCollapsed = isEachVehicleCollapsed.value.get(index);
-  isEachVehicleCollapsed.value.set(index, !isCollapsed);
-}
+const resetVehicleCollapsed = VehicleCollapsed.reset(
+  isEachVehicleCollapsed,
+  vehicles,
+);
+const toggleVehicleCollapsed = VehicleCollapsed.toggle(isEachVehicleCollapsed);
 
 const sortingBy = ref<SortType>("none");
 const sortingType = ref<SortState>("none");
@@ -111,7 +106,7 @@ onMounted(async () => {
   resetVehicleCollapsed();
 });
 watch(lastPage, () => {
-  if (pageNumber.value > lastPage.value) pageNumber.value = 1;
+  if (currentPageNumber.value > lastPage.value) currentPageNumber.value = 1;
 });
 </script>
 
@@ -283,10 +278,10 @@ watch(lastPage, () => {
         </div>
       </div>
 
-      <changer-page-number
-        :page-number="pageNumber"
+      <changer-current-page-number
+        :page-number="currentPageNumber"
         :last-page="lastPage"
-        @change-number="changePageNumber"
+        @change-number="changeCurrentPageNumber"
       />
       <changer-count-per-page
         @change-count="changeCountPerPage"
