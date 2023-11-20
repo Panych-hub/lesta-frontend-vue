@@ -8,6 +8,7 @@ import ChangerCountPerPage from "./components/changerCountPerPage.vue";
 import ChangerCurrentPageNumber from "./components/changerCurrentPageNumber.vue";
 import { VehicleCollapsed } from "./services/vehicleCollapsed";
 import FilterAndSort from "./components/FilterAndSort.vue";
+import { tableHeader } from "./services/tableHeader";
 
 const vehicles = ref<Vehicle[]>([]);
 
@@ -30,7 +31,7 @@ const lastPage = computed<number>(() => {
   return Math.floor(vehiclesToShow.value.length / countPerPage.value) + 1;
 });
 
-const vehiclesToShow = ref<Vehicle[]>([])
+const vehiclesToShow = ref<Vehicle[]>([]);
 
 const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
 const resetVehicleCollapsed = VehicleCollapsed.reset(
@@ -49,9 +50,8 @@ watch(lastPage, () => {
   if (currentPageNumber.value > lastPage.value) currentPageNumber.value = 1;
 });
 function changeVehiclesToShow(newValue: Vehicle[]) {
-  vehiclesToShow.value = newValue
+  vehiclesToShow.value = newValue;
 }
-
 </script>
 
 <template>
@@ -74,7 +74,7 @@ function changeVehiclesToShow(newValue: Vehicle[]) {
       <div class="w-100 d-flex justify-content-center overflow-hidden">
         <div class="w-75 h-100 p-3 overflow-hidden d-flex flex-column">
           <FilterAndSort
-            :sort-options="{'title': 'title', 'level': 'level', 'nation': 'nation', 'type': 'type' }"
+            :sort-options="tableHeader"
             :filter-field="'title'"
             :vehicle-list="vehicles"
             @change-vehicles-to-show="changeVehiclesToShow"
@@ -83,18 +83,14 @@ function changeVehiclesToShow(newValue: Vehicle[]) {
             class="w-100 d-grid fw-bold pe-3"
             :style="{ 'grid-template-columns': 'repeat(5, 1fr)' }"
           >
-            <div class="d-flex w-100 pointer">
-              <span class="me-2">Название</span>
+            <div
+              v-for="(fieldName, fieldIndex) of tableHeader"
+              :key="fieldIndex"
+              class="d-flex w-100"
+            >
+              <span class="me-2">{{ fieldName }}</span>
             </div>
-            <div class="d-flex w-100 pointer">
-              <span class="me-2">Уровень</span>
-            </div>
-            <div class="d-flex w-100 pointer">
-              <span class="me-2">Нация</span>
-            </div>
-            <div class="d-flex w-100 pointer">
-              <span class="me-2">Класс</span>
-            </div>
+            <!-- This block for grid -->
             <span style="max-width: 100%" />
           </div>
           <div
@@ -194,9 +190,6 @@ function changeVehiclesToShow(newValue: Vehicle[]) {
 </template>
 
 <style scoped>
-.pointer:hover {
-  cursor: pointer;
-}
 
 .big-background-image {
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
