@@ -9,6 +9,8 @@ import FilterAndSort from "./components/FilterAndSort.vue";
 import { tableHeader } from "./services/tableHeader";
 
 const vehicles = ref<Vehicle[]>([]);
+const fetchVehicles = fetchVehiclesList(vehicles);
+
 const countPerPage = ref<number>(10);
 function changeCountPerPage(toggleNumber: number) {
   countPerPage.value = toggleNumber;
@@ -20,10 +22,20 @@ function changeCurrentPageNumber(numberOfPage: number) {
 }
 
 const lastPage = computed<number>(() => {
-  return Math.floor(vehiclesToShow.value.length / countPerPage.value) + 1;
+  return Math.floor(vehiclesAfterFilter.value.length / countPerPage.value) + 1;
 });
 
-const vehiclesToShow = ref<Vehicle[]>([]);
+const vehiclesAfterFilter = ref<Vehicle[]>([]);
+function changeVehiclesToShow(newValue: Vehicle[]) {
+  vehiclesAfterFilter.value = newValue;
+  currentPageNumber.value = 1
+}
+const vehiclesToShow = computed<Vehicle[]>(() => {
+  const startNumber =
+    <number>countPerPage.value * (currentPageNumber.value - 1);
+  const endNumber = <number>countPerPage.value * currentPageNumber.value;
+  return vehiclesAfterFilter.value.slice(startNumber, endNumber);
+});
 
 const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
 const resetVehicleCollapsed = VehicleCollapsed.reset(
@@ -31,12 +43,6 @@ const resetVehicleCollapsed = VehicleCollapsed.reset(
   vehicles,
 );
 const toggleVehicleCollapsed = VehicleCollapsed.toggle(isEachVehicleCollapsed);
-
-const fetchVehicles = fetchVehiclesList(vehicles);
-
-function changeVehiclesToShow(newValue: Vehicle[]) {
-  vehiclesToShow.value = newValue;
-}
 
 onMounted(async () => {
   await fetchVehicles();
@@ -170,6 +176,9 @@ watch(lastPage, () => {
 </template>
 
 <style scoped>
+.pointer:hover {
+  cursor: pointer;
+}
 .big-background-image {
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
     url("/src/images/background.webp");
