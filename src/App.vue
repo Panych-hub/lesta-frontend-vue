@@ -49,50 +49,53 @@ watch(lastPage, () => {
   <div class="big-background-image vw-100 vh-100">
     <div class="vw-100 vh-100 d-flex flex-column overflow-hidden">
       <div>Header</div>
-      <div class="w-100 d-flex justify-content-center overflow-hidden">
-        <div class="w-75 h-100 p-3 overflow-hidden d-flex flex-column">
-          <FilterAndSort
-            :sort-options="tableHeader"
-            :filter-field="'title'"
-            :vehicle-list="vehicles"
-            @change-vehicles-to-show="changeVehiclesToShow"
-          />
-          <div
-            class="w-100 d-grid fw-bold pe-3"
-            :style="{ 'grid-template-columns': 'repeat(5, 1fr)' }"
-          >
+      <div
+        class="w-100 h-100 d-flex flex-column justify-content-between overflow-hidden"
+      >
+        <div class="w-100 d-flex justify-content-center overflow-hidden">
+          <div class="w-75 h-100 p-3 overflow-hidden d-flex flex-column">
+            <FilterAndSort
+              :sort-options="tableHeader"
+              :filter-field="'title'"
+              :vehicle-list="vehicles"
+              @change-vehicles-to-show="changeVehiclesToShow"
+            />
             <div
-              v-for="(fieldName, fieldIndex) of tableHeader"
-              :key="fieldIndex"
-              class="d-flex w-100"
+              class="w-100 d-grid fw-bold pe-3"
+              :style="{ 'grid-template-columns': 'repeat(5, 1fr)' }"
             >
-              <span class="me-2">{{ fieldName }}</span>
+              <div
+                v-for="(fieldName, fieldIndex) of tableHeader"
+                :key="fieldIndex"
+                class="d-flex w-100"
+              >
+                <span class="me-2">{{ fieldName }}</span>
+              </div>
+              <!-- This block for grid -->
+              <span style="max-width: 100%" />
             </div>
-            <!-- This block for grid -->
-            <span style="max-width: 100%" />
+            <VehiclesToShow
+              :vehicles="vehicles"
+              :vehicles-to-show="vehiclesToShow"
+              v-if="vehiclesToShow.length"
+            />
+            <div v-else class="text-center mt-4">Список пуст</div>
           </div>
-          <VehiclesToShow
-            :vehicles-to-show="vehiclesToShow"
-            v-if="vehiclesToShow.length"
+        </div>
+        <div>
+          <changer-current-page-number
+            :page-number="currentPageNumber"
+            :last-page="lastPage"
+            @change-number="changeCurrentPageNumber"
           />
-          <div v-else class="text-center mt-4">Список пуст</div>
+          <changer-count-per-page @change-count="changeCountPerPage" />
         </div>
       </div>
-
-      <changer-current-page-number
-        :page-number="currentPageNumber"
-        :last-page="lastPage"
-        @change-number="changeCurrentPageNumber"
-      />
-      <changer-count-per-page @change-count="changeCountPerPage" />
     </div>
   </div>
 </template>
 
 <style scoped>
-.pointer:hover {
-  cursor: pointer;
-}
 .big-background-image {
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
     url("/src/images/background.webp");
@@ -117,12 +120,4 @@ watch(lastPage, () => {
   scrollbar-color: blue orange;
 }
 
-.hr-line {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 -1px rgba(0, 0, 0, 0.2);
-}
-
-.background {
-  max-height: 400px;
-}
 </style>

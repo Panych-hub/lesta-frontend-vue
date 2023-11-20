@@ -2,12 +2,12 @@
 import { defineProps, onMounted, ref } from "vue";
 import { VehicleCollapsed } from "../services/vehicleCollapsed";
 import { Vehicle } from "../types/vehicle";
-const props = defineProps<{ vehiclesToShow: Vehicle[] }>();
+const props = defineProps<{ vehicles: Vehicle[], vehiclesToShow: Vehicle[] }>();
 
 const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
 const resetVehicleCollapsed = VehicleCollapsed.reset(
   isEachVehicleCollapsed,
-  props.vehiclesToShow,
+  props.vehicles,
 );
 const toggleVehicleCollapsed = VehicleCollapsed.toggle(isEachVehicleCollapsed);
 onMounted(async () => {
@@ -97,5 +97,23 @@ onMounted(async () => {
 <style scoped>
 .pointer:hover {
   cursor: pointer;
+}
+* {
+  color: white;
+  font-family: "Roboto Condensed", Arial, "Helvetica Neue", Helvetica,
+  sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  scrollbar-width: thin;
+  scrollbar-color: blue orange;
+}
+
+.hr-line {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -1px rgba(0, 0, 0, 0.2);
+}
+
+.background {
+  max-height: 400px;
 }
 </style>
