@@ -4,9 +4,9 @@ import { computed, onMounted, ref, watch } from "vue";
 import { fetchVehiclesList } from "./services/fetchVehicles";
 import ChangerCountPerPage from "./components/ChangerCountPerPage.vue";
 import ChangerCurrentPageNumber from "./components/ChangerCurrentPageNumber.vue";
-import { VehicleCollapsed } from "./services/vehicleCollapsed";
 import FilterAndSort from "./components/FilterAndSort.vue";
 import { tableHeader } from "./services/tableHeader";
+import VehiclesToShow from "./components/VehiclesToShow.vue";
 
 const vehicles = ref<Vehicle[]>([]);
 const fetchVehicles = fetchVehiclesList(vehicles);
@@ -28,7 +28,7 @@ const lastPage = computed<number>(() => {
 const vehiclesAfterFilter = ref<Vehicle[]>([]);
 function changeVehiclesToShow(newValue: Vehicle[]) {
   vehiclesAfterFilter.value = newValue;
-  currentPageNumber.value = 1
+  currentPageNumber.value = 1;
 }
 const vehiclesToShow = computed<Vehicle[]>(() => {
   const startNumber =
@@ -37,16 +37,8 @@ const vehiclesToShow = computed<Vehicle[]>(() => {
   return vehiclesAfterFilter.value.slice(startNumber, endNumber);
 });
 
-const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
-const resetVehicleCollapsed = VehicleCollapsed.reset(
-  isEachVehicleCollapsed,
-  vehicles,
-);
-const toggleVehicleCollapsed = VehicleCollapsed.toggle(isEachVehicleCollapsed);
-
 onMounted(async () => {
   await fetchVehicles();
-  resetVehicleCollapsed();
 });
 watch(lastPage, () => {
   if (currentPageNumber.value > lastPage.value) currentPageNumber.value = 1;
@@ -79,85 +71,10 @@ watch(lastPage, () => {
             <!-- This block for grid -->
             <span style="max-width: 100%" />
           </div>
-          <div
-            class="h-100 overflow-y-scroll overflow-x-hidden"
+          <VehiclesToShow
+            :vehicles-to-show="vehiclesToShow"
             v-if="vehiclesToShow.length"
-          >
-            <div
-              v-for="(vehicle, vehicleIndex) of vehiclesToShow"
-              :key="vehicleIndex"
-              class="w-100 mt-2"
-            >
-              <div
-                class="pointer hr-line pt-3"
-                @click="toggleVehicleCollapsed(vehicle.id)"
-              >
-                <div
-                  class="d-grid w-100"
-                  :style="{
-                    'grid-template-columns': '1fr 1fr 1fr 1fr 1fr',
-                    'background-image': `linear-gradient(
-                    transparent 80%, ${vehicle.nation.color} 100%
-                  )`,
-                  }"
-                >
-                  <div>{{ vehicle.title }}</div>
-                  <div>{{ vehicle.level }}</div>
-                  <div>
-                    <img
-                      :src="vehicle.nation.icons.small"
-                      :alt="vehicle.title"
-                      width="50"
-                    />
-                    {{ vehicle.nation.title }}
-                  </div>
-                  <div>
-                    <img
-                      :src="vehicle.type.icons.default"
-                      :alt="vehicle.title"
-                    />
-                    {{ vehicle.type.title }}
-                  </div>
-                  <img
-                    :src="vehicle.icons.medium"
-                    :alt="vehicle.title"
-                    style="max-width: 100%"
-                  />
-                </div>
-                <div v-if="isEachVehicleCollapsed">
-                  <div
-                    v-if="!isEachVehicleCollapsed.get(vehicle.id)"
-                    :id="`collapsable-${vehicle.id}`"
-                  >
-                    <div
-                      class="mb-2 w-100 d-grid"
-                      style="grid-template-columns: 2fr 1fr"
-                      :style="{
-                        'background-image': `linear-gradient(
-                    ${vehicle.nation.color} 0%, transparent 20%
-                  )`,
-                      }"
-                    >
-                      <span class="pt-5 p-3"> {{ vehicle.description }}</span>
-                      <div
-                        class="background m-3"
-                        :style="{
-                          'background-size': 'cover',
-                          'background-image': `url(${vehicle.nation.icons.large})`,
-                        }"
-                      >
-                        <img
-                          :src="vehicle.icons.large"
-                          :alt="vehicle.title"
-                          width="700"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          />
           <div v-else class="text-center mt-4">Список пуст</div>
         </div>
       </div>
@@ -167,10 +84,7 @@ watch(lastPage, () => {
         :last-page="lastPage"
         @change-number="changeCurrentPageNumber"
       />
-      <changer-count-per-page
-        @change-count="changeCountPerPage"
-        :count-per-page="countPerPage"
-      />
+      <changer-count-per-page @change-count="changeCountPerPage" />
     </div>
   </div>
 </template>

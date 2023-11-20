@@ -4,11 +4,11 @@ import { Vehicle } from "../types/vehicle";
 export class VehicleCollapsed {
   static reset(
     isEachVehicleCollapsed: Ref<Map<number, boolean>>,
-    vehicles: Ref<Vehicle[]>,
+    vehicles: Vehicle[],
   ) {
     return () => {
       isEachVehicleCollapsed.value = new Map(
-        vehicles.value.map((el) => [el.id, true]),
+        vehicles.map((el) => [el.id, true]),
       );
     };
   }

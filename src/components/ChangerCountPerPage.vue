@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import {defineProps, defineEmits, ref, watch} from "vue";
+import { defineEmits, ref, watch} from "vue";
 
-const props = defineProps<{ countPerPage: number }>();
 const emit = defineEmits<{ (event: "changeCount", count: number): void }>();
 
 const possibleCountPerPage = [10, 25, 50];
