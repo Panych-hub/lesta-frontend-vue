@@ -4,6 +4,8 @@ import { defineProps, defineEmits } from "vue";
 const props = defineProps<{ countPerPage: number }>();
 
 const emit = defineEmits<{ (event: "changeCount", count: number): void }>();
+
+const possibleCountPerPage = [10, 25, 50];
 </script>
 <template>
   <div class="d-flex justify-content-center m-2">
@@ -11,28 +13,14 @@ const emit = defineEmits<{ (event: "changeCount", count: number): void }>();
       Количество техники на странице
     </span>
     <button
+      v-for="(count, countIndex) of possibleCountPerPage"
+      :key="countIndex"
       type="button"
       class="btn btn-outline-secondary"
-      @click="emit('changeCount', 10)"
-      :class="props.countPerPage === 10 ? 'active' : ''"
+      @click="emit('changeCount', count)"
+      :class="props.countPerPage === count ? 'active' : ''"
     >
-      10
-    </button>
-    <button
-      type="button"
-      class="btn btn-outline-secondary"
-      @click="emit('changeCount', 25)"
-      :class="props.countPerPage === 25 ? 'active' : ''"
-    >
-      25
-    </button>
-    <button
-      type="button"
-      class="btn btn-outline-secondary"
-      @click="emit('changeCount', 50)"
-      :class="props.countPerPage === 50 ? 'active' : ''"
-    >
-      50
+      {{ count }}
     </button>
   </div>
 </template>

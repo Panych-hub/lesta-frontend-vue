@@ -3,10 +3,10 @@ import type { Vehicle } from "./types/vehicle";
 import { computed, onMounted, ref, watch } from "vue";
 import { SortState } from "./types/sortState";
 import { SortType } from "./types/sortType";
-import { fetchVehiclesList } from "./sevices/fetchVehicles";
+import { fetchVehiclesList } from "./services/fetchVehicles";
 import ChangerCountPerPage from "./components/changerCountPerPage.vue";
 import ChangerCurrentPageNumber from "./components/changerCurrentPageNumber.vue";
-import { VehicleCollapsed } from "./sevices/vehicleCollapsed";
+import { VehicleCollapsed } from "./services/vehicleCollapsed";
 
 const vehicles = ref<Vehicle[]>([]);
 
@@ -111,8 +111,8 @@ watch(lastPage, () => {
 </script>
 
 <template>
-  <div class="background-image vw-100 vh-100">
-    <div class="vw-100 vh-100 d-flex flex-column overflow-hidden">
+  <div class="big-background-image vw-100 vh-100">
+    <div class="vw-100 vh-100 d-flex flex-column overflow-hidden ">
       <div>Header</div>
       <div class="p-4 w-100 d-flex justify-content-center">
         <input
@@ -199,81 +199,84 @@ watch(lastPage, () => {
             </div>
             <span style="max-width: 100%" />
           </div>
-          <div class="h-100 overflow-y-scroll overflow-x-hidden">
-            <div
-              v-for="(vehicle, vehicleIndex) of vehiclesToShow"
-              :key="vehicleIndex"
-              class="w-100 mt-2"
-            >
+          <div class="h-100 overflow-y-scroll overflow-x-hidden" v-if="vehiclesToShow.length">
               <div
-                class="pointer hr-line pt-3"
-                @click="toggleVehicleCollapsed(vehicle.id)"
+                  v-for="(vehicle, vehicleIndex) of vehiclesToShow"
+                  :key="vehicleIndex"
+                  class="w-100 mt-2"
               >
                 <div
-                  class="d-grid w-100"
-                  :style="{
+                    class="pointer hr-line pt-3"
+                    @click="toggleVehicleCollapsed(vehicle.id)"
+                >
+                  <div
+                      class="d-grid w-100"
+                      :style="{
                     'grid-template-columns': '1fr 1fr 1fr 1fr 1fr',
                     'background-image': `linear-gradient(
                     transparent 80%, ${vehicle.nation.color} 100%
                   )`,
                   }"
-                >
-                  <div>{{ vehicle.title }}</div>
-                  <div>{{ vehicle.level }}</div>
-                  <div>
-                    <img
-                      :src="vehicle.nation.icons.small"
-                      :alt="vehicle.title"
-                      width="50"
-                    />
-                    {{ vehicle.nation.title }}
-                  </div>
-                  <div>
-                    <img
-                      :src="vehicle.type.icons.default"
-                      :alt="vehicle.title"
-                    />
-                    {{ vehicle.type.title }}
-                  </div>
-                  <img
-                    :src="vehicle.icons.medium"
-                    :alt="vehicle.title"
-                    style="max-width: 100%"
-                  />
-                </div>
-                <div v-if="isEachVehicleCollapsed">
-                  <div
-                    v-if="!isEachVehicleCollapsed.get(vehicle.id)"
-                    :id="`collapsable-${vehicle.id}`"
                   >
+                    <div>{{ vehicle.title }}</div>
+                    <div>{{ vehicle.level }}</div>
+                    <div>
+                      <img
+                          :src="vehicle.nation.icons.small"
+                          :alt="vehicle.title"
+                          width="50"
+                      />
+                      {{ vehicle.nation.title }}
+                    </div>
+                    <div>
+                      <img
+                          :src="vehicle.type.icons.default"
+                          :alt="vehicle.title"
+                      />
+                      {{ vehicle.type.title }}
+                    </div>
+                    <img
+                        :src="vehicle.icons.medium"
+                        :alt="vehicle.title"
+                        style="max-width: 100%"
+                    />
+                  </div>
+                  <div v-if="isEachVehicleCollapsed">
                     <div
-                      class="mb-2 w-100 d-grid"
-                      style="grid-template-columns: 2fr 1fr"
-                      :style="{
+                        v-if="!isEachVehicleCollapsed.get(vehicle.id)"
+                        :id="`collapsable-${vehicle.id}`"
+                    >
+                      <div
+                          class="mb-2 w-100 d-grid"
+                          style="grid-template-columns: 2fr 1fr"
+                          :style="{
                         'background-image': `linear-gradient(
                     ${vehicle.nation.color} 0%, transparent 20%
                   )`,
                       }"
-                    >
-                      <span class="pt-5 p-3"> {{ vehicle.description }}</span>
-                      <div
-                        class="background m-3"
-                        :style="{
+                      >
+                        <span class="pt-5 p-3"> {{ vehicle.description }}</span>
+                        <div
+                            class="background m-3"
+                            :style="{
                           'background-size': 'cover',
                           'background-image': `url(${vehicle.nation.icons.large})`,
                         }"
-                      >
-                        <img
-                          :src="vehicle.icons.large"
-                          :alt="vehicle.title"
-                          width="700"
-                        />
+                        >
+                          <img
+                              :src="vehicle.icons.large"
+                              :alt="vehicle.title"
+                              width="700"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+          </div>
+          <div v-else class="text-center mt-4">
+             Список пуст
           </div>
         </div>
       </div>
@@ -296,9 +299,9 @@ watch(lastPage, () => {
   cursor: pointer;
 }
 
-.background-image {
+.big-background-image {
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-    url("/src/images/background.png");
+    url("/src/images/background.webp");
   top: 0;
   left: 0;
   width: 100%;
