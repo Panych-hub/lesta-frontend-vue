@@ -27,55 +27,10 @@ function changeCurrentPageNumber(numberOfPage: number) {
 }
 
 const lastPage = computed<number>(() => {
-  return Math.floor(vehiclesFiltered.value.length / countPerPage.value) + 1;
+  return Math.floor(vehiclesToShow.value.length / countPerPage.value) + 1;
 });
 
-const vehiclesFiltered = computed<Vehicle[]>(() => {
-  return vehicles.value.filter((vehicle) =>
-    String(vehicle["title"])
-      .toLowerCase()
-      .includes(filterForVehicles.value.toLowerCase()),
-  );
-});
 const vehiclesToShow = ref<Vehicle[]>([])
-// const vehiclesToShow = computed<Vehicle[]>(() => {
-//   const vehiclesAfterFilter = JSON.parse(
-//     JSON.stringify(vehiclesFiltered.value),
-//   );
-//   if (sortingType.value === "up") {
-//     if (sortingBy.value === "title") {
-//       vehiclesAfterFilter.sort((a, b) => a.title.localeCompare(b.title));
-//     } else if (sortingBy.value === "level") {
-//       vehiclesAfterFilter.sort((a, b) => a.level - b.level);
-//     } else if (sortingBy.value === "nation") {
-//       vehiclesAfterFilter.sort((a, b) =>
-//         a.nation.title.localeCompare(b.nation.title),
-//       );
-//     } else if (sortingBy.value === "type") {
-//       vehiclesAfterFilter.sort((a, b) =>
-//         a.type.title.localeCompare(b.type.title),
-//       );
-//     }
-//   } else {
-//     if (sortingBy.value === "title") {
-//       vehiclesAfterFilter.sort((a, b) => b.title.localeCompare(a.title));
-//     } else if (sortingBy.value === "level") {
-//       vehiclesAfterFilter.sort((a, b) => b.level - a.level);
-//     } else if (sortingBy.value === "nation") {
-//       vehiclesAfterFilter.sort((a, b) =>
-//         b.nation.title.localeCompare(a.nation.title),
-//       );
-//     } else if (sortingBy.value === "type") {
-//       vehiclesAfterFilter.sort((a, b) =>
-//         b.type.title.localeCompare(a.type.title),
-//       );
-//     }
-//   }
-//   const startNumber =
-//     <number>countPerPage.value * (currentPageNumber.value - 1);
-//   const endNumber = <number>countPerPage.value * currentPageNumber.value;
-//   return vehiclesAfterFilter.slice(startNumber, endNumber);
-// });
 
 const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
 const resetVehicleCollapsed = VehicleCollapsed.reset(
@@ -83,22 +38,6 @@ const resetVehicleCollapsed = VehicleCollapsed.reset(
   vehicles,
 );
 const toggleVehicleCollapsed = VehicleCollapsed.toggle(isEachVehicleCollapsed);
-
-const sortingBy = ref<SortType>("none");
-const sortingType = ref<SortState>("none");
-
-function toggleSort(sortedBy: SortType) {
-  if (sortedBy === sortingBy.value) {
-    if (sortingType.value === "up") {
-      sortingType.value = "down";
-    } else {
-      sortingType.value = "up";
-    }
-    return;
-  }
-  sortingBy.value = sortedBy;
-  sortingType.value = "up";
-}
 
 const fetchVehicles = fetchVehiclesList(vehicles);
 
@@ -144,69 +83,17 @@ function changeVehiclesToShow(newValue: Vehicle[]) {
             class="w-100 d-grid fw-bold pe-3"
             :style="{ 'grid-template-columns': 'repeat(5, 1fr)' }"
           >
-            <div class="d-flex w-100 pointer" @click="toggleSort('title')">
+            <div class="d-flex w-100 pointer">
               <span class="me-2">Название</span>
-              <div v-if="sortingBy === 'title'">
-                <font-awesome-icon
-                  icon="fa-sort-up"
-                  v-if="sortingType === 'up'"
-                />
-                <font-awesome-icon
-                  icon="fa-sort-down"
-                  v-if="sortingType === 'down'"
-                />
-              </div>
-              <div v-else>
-                <font-awesome-icon icon="fa-sort" />
-              </div>
             </div>
-            <div class="d-flex w-100 pointer" @click="toggleSort('level')">
+            <div class="d-flex w-100 pointer">
               <span class="me-2">Уровень</span>
-              <div v-if="sortingBy === 'level'">
-                <font-awesome-icon
-                  icon="fa-sort-up"
-                  v-if="sortingType === 'up'"
-                />
-                <font-awesome-icon
-                  icon="fa-sort-down"
-                  v-if="sortingType === 'down'"
-                />
-              </div>
-              <div v-else>
-                <font-awesome-icon icon="fa-sort" />
-              </div>
             </div>
-            <div class="d-flex w-100 pointer" @click="toggleSort('nation')">
+            <div class="d-flex w-100 pointer">
               <span class="me-2">Нация</span>
-              <div v-if="sortingBy === 'nation'">
-                <font-awesome-icon
-                  icon="fa-sort-up"
-                  v-if="sortingType === 'up'"
-                />
-                <font-awesome-icon
-                  icon="fa-sort-down"
-                  v-if="sortingType === 'down'"
-                />
-              </div>
-              <div v-else>
-                <font-awesome-icon icon="fa-sort" />
-              </div>
             </div>
-            <div class="d-flex w-100 pointer" @click="toggleSort('type')">
+            <div class="d-flex w-100 pointer">
               <span class="me-2">Класс</span>
-              <div v-if="sortingBy === 'type'">
-                <font-awesome-icon
-                  icon="fa-sort-up"
-                  v-if="sortingType === 'up'"
-                />
-                <font-awesome-icon
-                  icon="fa-sort-down"
-                  v-if="sortingType === 'down'"
-                />
-              </div>
-              <div v-else>
-                <font-awesome-icon icon="fa-sort" />
-              </div>
             </div>
             <span style="max-width: 100%" />
           </div>
