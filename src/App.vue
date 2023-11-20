@@ -2,8 +2,8 @@
 import type { Vehicle } from "./types/vehicle";
 import { computed, onMounted, ref, watch } from "vue";
 import { fetchVehiclesList } from "./services/fetchVehicles";
-import ChangerCountPerPage from "./components/changerCountPerPage.vue";
-import ChangerCurrentPageNumber from "./components/changerCurrentPageNumber.vue";
+import ChangerCountPerPage from "./components/ChangerCountPerPage.vue";
+import ChangerCurrentPageNumber from "./components/ChangerCurrentPageNumber.vue";
 import { VehicleCollapsed } from "./services/vehicleCollapsed";
 import FilterAndSort from "./components/FilterAndSort.vue";
 import { tableHeader } from "./services/tableHeader";
