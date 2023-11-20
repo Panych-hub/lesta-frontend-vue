@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Vehicle } from "./types/vehicle";
 import { computed, onMounted, ref, watch } from "vue";
-import { SortState } from "./types/sortState";
-import { SortType } from "./types/sortType";
 import { fetchVehiclesList } from "./services/fetchVehicles";
 import ChangerCountPerPage from "./components/changerCountPerPage.vue";
 import ChangerCurrentPageNumber from "./components/changerCurrentPageNumber.vue";
@@ -11,12 +9,6 @@ import FilterAndSort from "./components/FilterAndSort.vue";
 import { tableHeader } from "./services/tableHeader";
 
 const vehicles = ref<Vehicle[]>([]);
-
-const filterForVehicles = ref<string>("");
-function clearFilterForVehicles() {
-  filterForVehicles.value = "";
-}
-
 const countPerPage = ref<number>(10);
 function changeCountPerPage(toggleNumber: number) {
   countPerPage.value = toggleNumber;
@@ -42,6 +34,10 @@ const toggleVehicleCollapsed = VehicleCollapsed.toggle(isEachVehicleCollapsed);
 
 const fetchVehicles = fetchVehiclesList(vehicles);
 
+function changeVehiclesToShow(newValue: Vehicle[]) {
+  vehiclesToShow.value = newValue;
+}
+
 onMounted(async () => {
   await fetchVehicles();
   resetVehicleCollapsed();
@@ -49,28 +45,12 @@ onMounted(async () => {
 watch(lastPage, () => {
   if (currentPageNumber.value > lastPage.value) currentPageNumber.value = 1;
 });
-function changeVehiclesToShow(newValue: Vehicle[]) {
-  vehiclesToShow.value = newValue;
-}
 </script>
 
 <template>
   <div class="big-background-image vw-100 vh-100">
     <div class="vw-100 vh-100 d-flex flex-column overflow-hidden">
       <div>Header</div>
-      <div class="p-4 w-100 d-flex justify-content-center">
-        <input
-          v-model="filterForVehicles"
-          class="form-check-input h-100 w-50 block-radius input-filter mt-0 me-2"
-          placeholder="Фильтр по названию"
-        />
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          aria-label="clear"
-          @click="clearFilterForVehicles"
-        ></button>
-      </div>
       <div class="w-100 d-flex justify-content-center overflow-hidden">
         <div class="w-75 h-100 p-3 overflow-hidden d-flex flex-column">
           <FilterAndSort
@@ -190,7 +170,6 @@ function changeVehiclesToShow(newValue: Vehicle[]) {
 </template>
 
 <style scoped>
-
 .big-background-image {
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
     url("/src/images/background.webp");
@@ -218,23 +197,6 @@ function changeVehiclesToShow(newValue: Vehicle[]) {
 .hr-line {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 -1px rgba(0, 0, 0, 0.2);
-}
-
-.input-filter {
-  font-family: "Roboto Condensed", Arial, "Helvetica Neue", Helvetica,
-    sans-serif;
-  font-size: 16px;
-  position: relative;
-  z-index: 98;
-  box-sizing: border-box;
-  height: 34px;
-  background: rgba(19, 22, 22, 0.5);
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
-  color: #ddd;
-  padding: 0 65px 0 10px;
-  backdrop-filter: blur(8px);
 }
 
 .background {

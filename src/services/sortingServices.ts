@@ -8,7 +8,9 @@ export class SortingServices {
     this.sortingField = "none";
     this.sortingOrder = "none";
   }
-  _comparator<T extends number | string>(a: T, b: T) {
+  _comparator<T extends number | string | object>(a: T, b: T) {
+    if (typeof a === "object" && typeof b === "object")
+      return this._comparator(a["title"], b["title"]);
     if (typeof a === "number" && typeof b === "number")
       return this.sortingOrder === "ascending" ? a - b : b - a;
     if (typeof a === "string" && typeof b === "string")
