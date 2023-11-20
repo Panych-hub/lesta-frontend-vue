@@ -7,6 +7,7 @@ import { fetchVehiclesList } from "./services/fetchVehicles";
 import ChangerCountPerPage from "./components/changerCountPerPage.vue";
 import ChangerCurrentPageNumber from "./components/changerCurrentPageNumber.vue";
 import { VehicleCollapsed } from "./services/vehicleCollapsed";
+import FilterAndSort from "./components/FilterAndSort.vue";
 
 const vehicles = ref<Vehicle[]>([]);
 
@@ -36,45 +37,45 @@ const vehiclesFiltered = computed<Vehicle[]>(() => {
       .includes(filterForVehicles.value.toLowerCase()),
   );
 });
-
-const vehiclesToShow = computed<Vehicle[]>(() => {
-  const vehiclesAfterFilter = JSON.parse(
-    JSON.stringify(vehiclesFiltered.value),
-  );
-  if (sortingType.value === "up") {
-    if (sortingBy.value === "title") {
-      vehiclesAfterFilter.sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortingBy.value === "level") {
-      vehiclesAfterFilter.sort((a, b) => a.level - b.level);
-    } else if (sortingBy.value === "nation") {
-      vehiclesAfterFilter.sort((a, b) =>
-        a.nation.title.localeCompare(b.nation.title),
-      );
-    } else if (sortingBy.value === "type") {
-      vehiclesAfterFilter.sort((a, b) =>
-        a.type.title.localeCompare(b.type.title),
-      );
-    }
-  } else {
-    if (sortingBy.value === "title") {
-      vehiclesAfterFilter.sort((a, b) => b.title.localeCompare(a.title));
-    } else if (sortingBy.value === "level") {
-      vehiclesAfterFilter.sort((a, b) => b.level - a.level);
-    } else if (sortingBy.value === "nation") {
-      vehiclesAfterFilter.sort((a, b) =>
-        b.nation.title.localeCompare(a.nation.title),
-      );
-    } else if (sortingBy.value === "type") {
-      vehiclesAfterFilter.sort((a, b) =>
-        b.type.title.localeCompare(a.type.title),
-      );
-    }
-  }
-  const startNumber =
-    <number>countPerPage.value * (currentPageNumber.value - 1);
-  const endNumber = <number>countPerPage.value * currentPageNumber.value;
-  return vehiclesAfterFilter.slice(startNumber, endNumber);
-});
+const vehiclesToShow = ref<Vehicle[]>([])
+// const vehiclesToShow = computed<Vehicle[]>(() => {
+//   const vehiclesAfterFilter = JSON.parse(
+//     JSON.stringify(vehiclesFiltered.value),
+//   );
+//   if (sortingType.value === "up") {
+//     if (sortingBy.value === "title") {
+//       vehiclesAfterFilter.sort((a, b) => a.title.localeCompare(b.title));
+//     } else if (sortingBy.value === "level") {
+//       vehiclesAfterFilter.sort((a, b) => a.level - b.level);
+//     } else if (sortingBy.value === "nation") {
+//       vehiclesAfterFilter.sort((a, b) =>
+//         a.nation.title.localeCompare(b.nation.title),
+//       );
+//     } else if (sortingBy.value === "type") {
+//       vehiclesAfterFilter.sort((a, b) =>
+//         a.type.title.localeCompare(b.type.title),
+//       );
+//     }
+//   } else {
+//     if (sortingBy.value === "title") {
+//       vehiclesAfterFilter.sort((a, b) => b.title.localeCompare(a.title));
+//     } else if (sortingBy.value === "level") {
+//       vehiclesAfterFilter.sort((a, b) => b.level - a.level);
+//     } else if (sortingBy.value === "nation") {
+//       vehiclesAfterFilter.sort((a, b) =>
+//         b.nation.title.localeCompare(a.nation.title),
+//       );
+//     } else if (sortingBy.value === "type") {
+//       vehiclesAfterFilter.sort((a, b) =>
+//         b.type.title.localeCompare(a.type.title),
+//       );
+//     }
+//   }
+//   const startNumber =
+//     <number>countPerPage.value * (currentPageNumber.value - 1);
+//   const endNumber = <number>countPerPage.value * currentPageNumber.value;
+//   return vehiclesAfterFilter.slice(startNumber, endNumber);
+// });
 
 const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
 const resetVehicleCollapsed = VehicleCollapsed.reset(
@@ -108,11 +109,15 @@ onMounted(async () => {
 watch(lastPage, () => {
   if (currentPageNumber.value > lastPage.value) currentPageNumber.value = 1;
 });
+function changeVehiclesToShow(newValue: Vehicle[]) {
+  vehiclesToShow.value = newValue
+}
+
 </script>
 
 <template>
   <div class="big-background-image vw-100 vh-100">
-    <div class="vw-100 vh-100 d-flex flex-column overflow-hidden ">
+    <div class="vw-100 vh-100 d-flex flex-column overflow-hidden">
       <div>Header</div>
       <div class="p-4 w-100 d-flex justify-content-center">
         <input
@@ -129,6 +134,12 @@ watch(lastPage, () => {
       </div>
       <div class="w-100 d-flex justify-content-center overflow-hidden">
         <div class="w-75 h-100 p-3 overflow-hidden d-flex flex-column">
+          <FilterAndSort
+            :sort-options="{'title': 'title', 'level': 'level', 'nation': 'nation', 'type': 'type' }"
+            :filter-field="'title'"
+            :vehicle-list="vehicles"
+            @change-vehicles-to-show="changeVehiclesToShow"
+          />
           <div
             class="w-100 d-grid fw-bold pe-3"
             :style="{ 'grid-template-columns': 'repeat(5, 1fr)' }"
@@ -199,85 +210,86 @@ watch(lastPage, () => {
             </div>
             <span style="max-width: 100%" />
           </div>
-          <div class="h-100 overflow-y-scroll overflow-x-hidden" v-if="vehiclesToShow.length">
+          <div
+            class="h-100 overflow-y-scroll overflow-x-hidden"
+            v-if="vehiclesToShow.length"
+          >
+            <div
+              v-for="(vehicle, vehicleIndex) of vehiclesToShow"
+              :key="vehicleIndex"
+              class="w-100 mt-2"
+            >
               <div
-                  v-for="(vehicle, vehicleIndex) of vehiclesToShow"
-                  :key="vehicleIndex"
-                  class="w-100 mt-2"
+                class="pointer hr-line pt-3"
+                @click="toggleVehicleCollapsed(vehicle.id)"
               >
                 <div
-                    class="pointer hr-line pt-3"
-                    @click="toggleVehicleCollapsed(vehicle.id)"
-                >
-                  <div
-                      class="d-grid w-100"
-                      :style="{
+                  class="d-grid w-100"
+                  :style="{
                     'grid-template-columns': '1fr 1fr 1fr 1fr 1fr',
                     'background-image': `linear-gradient(
                     transparent 80%, ${vehicle.nation.color} 100%
                   )`,
                   }"
-                  >
-                    <div>{{ vehicle.title }}</div>
-                    <div>{{ vehicle.level }}</div>
-                    <div>
-                      <img
-                          :src="vehicle.nation.icons.small"
-                          :alt="vehicle.title"
-                          width="50"
-                      />
-                      {{ vehicle.nation.title }}
-                    </div>
-                    <div>
-                      <img
-                          :src="vehicle.type.icons.default"
-                          :alt="vehicle.title"
-                      />
-                      {{ vehicle.type.title }}
-                    </div>
+                >
+                  <div>{{ vehicle.title }}</div>
+                  <div>{{ vehicle.level }}</div>
+                  <div>
                     <img
-                        :src="vehicle.icons.medium"
-                        :alt="vehicle.title"
-                        style="max-width: 100%"
+                      :src="vehicle.nation.icons.small"
+                      :alt="vehicle.title"
+                      width="50"
                     />
+                    {{ vehicle.nation.title }}
                   </div>
-                  <div v-if="isEachVehicleCollapsed">
+                  <div>
+                    <img
+                      :src="vehicle.type.icons.default"
+                      :alt="vehicle.title"
+                    />
+                    {{ vehicle.type.title }}
+                  </div>
+                  <img
+                    :src="vehicle.icons.medium"
+                    :alt="vehicle.title"
+                    style="max-width: 100%"
+                  />
+                </div>
+                <div v-if="isEachVehicleCollapsed">
+                  <div
+                    v-if="!isEachVehicleCollapsed.get(vehicle.id)"
+                    :id="`collapsable-${vehicle.id}`"
+                  >
                     <div
-                        v-if="!isEachVehicleCollapsed.get(vehicle.id)"
-                        :id="`collapsable-${vehicle.id}`"
-                    >
-                      <div
-                          class="mb-2 w-100 d-grid"
-                          style="grid-template-columns: 2fr 1fr"
-                          :style="{
+                      class="mb-2 w-100 d-grid"
+                      style="grid-template-columns: 2fr 1fr"
+                      :style="{
                         'background-image': `linear-gradient(
                     ${vehicle.nation.color} 0%, transparent 20%
                   )`,
                       }"
-                      >
-                        <span class="pt-5 p-3"> {{ vehicle.description }}</span>
-                        <div
-                            class="background m-3"
-                            :style="{
+                    >
+                      <span class="pt-5 p-3"> {{ vehicle.description }}</span>
+                      <div
+                        class="background m-3"
+                        :style="{
                           'background-size': 'cover',
                           'background-image': `url(${vehicle.nation.icons.large})`,
                         }"
-                        >
-                          <img
-                              :src="vehicle.icons.large"
-                              :alt="vehicle.title"
-                              width="700"
-                          />
-                        </div>
+                      >
+                        <img
+                          :src="vehicle.icons.large"
+                          :alt="vehicle.title"
+                          width="700"
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
           </div>
-          <div v-else class="text-center mt-4">
-             Список пуст
-          </div>
+          <div v-else class="text-center mt-4">Список пуст</div>
         </div>
       </div>
 
