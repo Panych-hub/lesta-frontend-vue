@@ -9,12 +9,14 @@ const selectedCount = ref(`Показать ${possibleCountPerPage[0]} един�
 watch(selectedCount, (newCount) => emit("changeCount", Number(newCount.split(' ')[1])))
 </script>
 <template>
-  <div id="v-model-select " class="p-3 block-radius w-25">
-    <select v-model="selectedCount" class="form-select form-select-sm bg-dark select-white">
-      <option v-for="option in possibleCountPerPage" :key="option">
-        {{ `Показать ${option} единиц`}}
-      </option>
-    </select>
+  <div class="d-flex justify-content-center m-2">
+    <div id="v-model-select " class="p-3 block-radius">
+      <select v-model="selectedCount" class="form-select form-select-sm bg-dark select-white">
+        <option v-for="option in possibleCountPerPage" :key="option">
+          {{ `Показать ${option} единиц`}}
+        </option>
+      </select>
+    </div>
   </div>
 </template>
 <style scoped>
