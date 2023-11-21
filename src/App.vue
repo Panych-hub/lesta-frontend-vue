@@ -14,6 +14,7 @@ const fetchVehicles = fetchVehiclesList(vehicles);
 const countPerPage = ref<number>(10);
 function changeCountPerPage(toggleNumber: number) {
   countPerPage.value = toggleNumber;
+  currentPageNumber.value = 1;
 }
 
 const currentPageNumber = ref<number>(1);

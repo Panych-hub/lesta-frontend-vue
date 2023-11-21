@@ -2,7 +2,7 @@
 import { defineProps, onMounted, ref } from "vue";
 import { VehicleCollapsed } from "../services/vehicleCollapsed";
 import { Vehicle } from "../types/vehicle";
-const props = defineProps<{ vehicles: Vehicle[], vehiclesToShow: Vehicle[] }>();
+const props = defineProps<{ vehicles: Vehicle[]; vehiclesToShow: Vehicle[] }>();
 
 const isEachVehicleCollapsed = ref<Map<number, boolean>>(new Map());
 const resetVehicleCollapsed = VehicleCollapsed.reset(
@@ -64,28 +64,24 @@ onMounted(async () => {
             :id="`collapsable-${vehicle.id}`"
           >
             <div
-              class="mb-2 w-100 d-grid"
-              style="grid-template-columns: 2fr 1fr"
+              class="mb-2 w-100 vehicle-body"
               :style="{
                 'background-image': `linear-gradient(
-                    ${vehicle.nation.color} 0%, transparent 20%
+                    ${vehicle.nation.color} 0%, transparent 70px
                   )`,
               }"
             >
               <span class="pt-5 p-3"> {{ vehicle.description }}</span>
-              <div
-                class="background m-3"
+              <img
+                  class="m-3 vehicle-image"
+                :src="vehicle.icons.large"
+                :alt="vehicle.title"
+                width="700"
                 :style="{
-                  'background-size': 'cover',
-                  'background-image': `url(${vehicle.nation.icons.large})`,
-                }"
-              >
-                <img
-                  :src="vehicle.icons.large"
-                  :alt="vehicle.title"
-                  width="700"
-                />
-              </div>
+                'background-size': 'cover',
+                'background-image': `url(${vehicle.nation.icons.large})`,
+              }"
+              />
             </div>
           </div>
         </div>
@@ -113,7 +109,19 @@ onMounted(async () => {
   box-shadow: 0 -1px rgba(0, 0, 0, 0.2);
 }
 
-.background {
-  max-height: 400px;
+@media (max-width: 2000px){
+  .vehicle-body {
+    display: grid;
+    grid-template-columns: 2fr 1fr
+  }
+}
+@media (max-width: 1600px){
+  .vehicle-body {
+    display: flex;
+    flex-direction: column;
+  }
+  .vehicle-image {
+    width: 100%;
+  }
 }
 </style>
