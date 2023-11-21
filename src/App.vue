@@ -8,6 +8,8 @@ import FilterAndSort from "./components/FilterAndSort.vue";
 import { tableHeader } from "./services/tableHeader";
 import VehiclesToShow from "./components/VehiclesToShow.vue";
 
+const githubLogo = new URL("/src/images/github_logo.webp", import.meta.url).href;
+
 const vehicles = ref<Vehicle[]>([]);
 const fetchVehicles = fetchVehiclesList(vehicles);
 
@@ -49,7 +51,10 @@ watch(lastPage, () => {
 <template>
   <div class="big-background-image vw-100 vh-100">
     <div class="vw-100 vh-100 d-flex flex-column overflow-hidden">
-      <div>Header</div>
+      <a class="bg-black d-flex align-items-center" href="https://github.com/Panych-hub/">
+        <img :src="githubLogo" alt="github" width="20" class="ms-2"/>
+        <span class="ms-2"> Panych-hub </span>
+      </a>
       <div
         class="w-100 h-100 d-flex flex-column justify-content-between overflow-hidden"
       >
@@ -97,6 +102,9 @@ watch(lastPage, () => {
 </template>
 
 <style scoped>
+a {
+  text-decoration: none;
+}
 .big-background-image {
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
     url("/src/images/background.webp");

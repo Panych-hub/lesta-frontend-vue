@@ -42,7 +42,7 @@ const emit = defineEmits<{ (event: "changeNumber", count: number): void }>();
         </button>
         <div v-else />
       </div>
-      <div v-if="props.pageNumber < props.lastPage - 1">
+      <div v-if="props.pageNumber < props.lastPage - 1" class="d-flex justify-content-start">
         <span> . . . </span>
         <button
           type="button"
