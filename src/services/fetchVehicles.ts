@@ -10,7 +10,10 @@ function addIdToVehicles(vehicles: Ref<Vehicle[]>) {
 }
 export function fetchVehiclesList(vehicles: Ref<Vehicle[]>) {
   return async () => {
-    vehicles.value = await api.vehicle.get();
+    // vehicles.value = await api.vehicle.get();
+    vehicles.value = await api.vehicle.readFromFile();
+
     vehicles.value = addIdToVehicles(vehicles);
+    console.log("123", vehicles.value);
   };
 }
